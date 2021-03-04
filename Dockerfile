@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/python-38:latest
+FROM registry.redhat.io/rhscl/python-38-rhel7:latest
 
 # Upgrade dependency management itself.
 RUN pip install --upgrade pip pipenv
