@@ -1,0 +1,72 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: sample-app
+  name: sample-app
+spec:
+  replicas: 2
+  strategy:
+    activeDeadlineSeconds: 21600
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 50%
+      maxUnavailable: 50%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: sample-app
+        deploymentconfig: sample-app
+    spec:
+      containers:
+      - env:
+        - name: TLS_CERT_FILE
+          value: /opt/sample-app/certs/tls.crt
+        - name: TLS_KEY_FILE
+          value: /opt/sample-app/certs/tls.key
+        image: images.paas.redhat.com/dev-analytics/sample-app:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 5000
+            scheme: HTTPS
+          initialDelaySeconds: 2
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 3
+        name: sample-app
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 5000
+            scheme: HTTPS
+          initialDelaySeconds: 1
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: "1"
+            memory: 100Mi
+        volumeMounts:
+          - mountPath: /opt/sample-app/certs
+            name: sample-app-tls
+      volumes:
+      - name: sample-app-tls
+        secret:
+          defaultMode: 420
+          items:
+          - key: tls.crt
+            path: tls.crt
+          - key: tls.key
+            path: tls.key
+          secretName: sample-app-tls
+ 

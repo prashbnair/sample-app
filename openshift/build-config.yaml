@@ -1,0 +1,37 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: sample-app
+  name: sample-app
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    pushSecret:
+      name: images-paas-push-config
+    to:
+      kind: DockerImage
+      name: 'images.paas.redhat.com/dev-analytics/sample-app:latest'
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    git:
+      uri: 'https://github.com/prashbnair/sample-app'
+    type: Git
+  strategy:
+    dockerStrategy:
+      pullSecret:
+        name: registry-redhat-io-pull-secret
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+    - github:
+        secret: i_Q5jBhKUw9MpX0oHgU0
+      type: GitHub
+    - generic:
+        secret: nY8kNfF1myRUZYYeeGWE
+      type: Generic
+    - type: ConfigChange
+
